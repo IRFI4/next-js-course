@@ -1,16 +1,25 @@
-'use client'
+import { Metadata } from "next"
+import Catalog from "./Catalog"
 
-import Image from 'next/image'
-import styles from './Catalog.module.css'
-import { useRouter } from 'next/navigation'
+// SSR, ISR, SSG
 
-export default function CatalogPage() {
-    const { push } = useRouter()
+export const metadata: Metadata = {
+    title: 'Product'
+}
 
-    push('/product/1')
+const fetchData = async () => {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+        cache: 'force-cache',
+        next: {
+            revalidate: 3600,
+        }
+    })
+    const data = await response.json()
+    return data
+}
 
-    return <div className={styles.div}>
-        <h1 className={styles.heading}>Catalog</h1>
-        <Image src='/next.svg' alt='Logo' width={200} height={200} />
-    </div>
+export default async function CatalogPage() {
+    const posts = await fetchData()
+
+    return <Catalog data={posts} />
 }
